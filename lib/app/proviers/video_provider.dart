@@ -1,9 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:video_collection/app/dialogs/index.dart';
+import 'package:video_collection/app/enums/video_types.dart';
+import 'package:video_collection/app/extensions/file_system_entity_extension.dart';
+import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
+import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/services/index.dart';
+import 'package:video_collection/app/utils/index.dart';
 
 class VideoProvider with ChangeNotifier {
   final List<VideoModel> _list = [];
@@ -71,6 +77,8 @@ class VideoProvider with ChangeNotifier {
       final list = await VideoServices.instance.getVideoList();
       list.insert(0, video);
       await VideoServices.instance.setVideoList(list: list);
+      //set current
+      _currentVideo = video;
 
       _isLoading = false;
       notifyListeners();
@@ -118,5 +126,85 @@ class VideoProvider with ChangeNotifier {
         },
       ),
     );
+  }
+
+  Future<void> addFromPathList({
+    required List<String> pathList,
+    required VideoTypes videoType,
+  }) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      final allVideoList = await VideoServices.instance.getVideoList();
+
+      for (var path in pathList) {
+        //video ဖန်တီးမယ်
+        final videoId = Uuid().v4();
+        final newVideo = VideoModel(
+          id: videoId,
+          title: path.getName(),
+          genres: '',
+          desc: '',
+          date: DateTime.now().millisecondsSinceEpoch,
+          type: videoType,
+        );
+        //add db
+
+        allVideoList.insert(0, newVideo);
+
+        //video folder src path
+        final videoSrcPath = VideoServices.instance.getSourcePath(videoId);
+
+        //copy video cover
+        final oldVideoCover =
+            File('${getCachePath()}/${path.getName(withExt: false)}.png');
+        if (await oldVideoCover.exists()) {
+          //cache ထဲက video cover ရှိနေရင်
+          final newVideoCoverPath = '$videoSrcPath/cover.png';
+          await oldVideoCover.copy(newVideoCoverPath);
+        }
+        //video file အတွက်ရေးမယ်
+        List<VideoFileModel> allVideoFileList = [];
+        //video file
+        final vFile = File(path);
+
+        final videoFileId = Uuid().v4();
+
+        //check config
+        bool isMoveVideoFile = appConfigNotifier.value.isMoveVideoFileWithInfo;
+        final videoFileSize = vFile.statSync().size;
+        //video fiel move path
+        final videoMovePath = '$videoSrcPath/$videoFileId';
+        //config က မှန်ရင် move
+        if (isMoveVideoFile) {
+          await vFile.rename(videoMovePath);
+        }
+
+        final newVideoFile = VideoFileModel(
+          id: videoFileId,
+          videoId: videoId,
+          title: vFile.getName(),
+          coverPath: '',
+          path: path,
+          size: videoFileSize,
+          date: vFile.statSync().modified.millisecondsSinceEpoch,
+        );
+
+        allVideoFileList.insert(0, newVideoFile);
+
+        //add ad video file
+        await VideoFileService.instance.setList(
+          list: allVideoFileList,
+          videoId: videoId,
+        );
+      }
+
+      //add db video list
+      await VideoServices.instance.setVideoList(list: allVideoList);
+
+      await initList();
+    } catch (e) {
+      debugPrint('addFromPathList: ${e.toString()}');
+    }
   }
 }

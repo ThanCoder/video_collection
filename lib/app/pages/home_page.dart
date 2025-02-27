@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -55,6 +58,17 @@ class _HomePageState extends State<HomePage> {
                   _addFromScanner();
                 },
               ),
+              Platform.isLinux
+                  ? ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text(
+                          'Add From File Selector (${appConfigNotifier.value.isMoveVideoFileWithInfo ? 'File ပါရွှေ့မယ်' : 'Info ရယူမယ်'})'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _addFromFileChooser();
+                      },
+                    )
+                  : SizedBox.shrink(),
             ],
           ),
         ),
@@ -68,10 +82,49 @@ class _HomePageState extends State<HomePage> {
         MaterialPageRoute(
           builder: (context) => VideoScannerScreen(
             onChoosed: (selectedPath) {
-              print(selectedPath);
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) => VideoTypesDialog(
+                  onChoosed: (type) {
+                    context.read<VideoProvider>().addFromPathList(
+                          pathList: selectedPath,
+                          videoType: type,
+                        );
+                  },
+                ),
+              );
             },
           ),
         ));
+  }
+
+  void _addFromFileChooser() async {
+    try {
+      final res = await FilePicker.platform.pickFiles(
+          dialogTitle: 'Fick Videos',
+          type: FileType.video,
+          allowMultiple: true);
+      if (res == null || res.files.isEmpty) return;
+      final pathList = res.files.map((f) => f.path!).toList();
+
+      if (!mounted) return;
+
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => VideoTypesDialog(
+          onChoosed: (type) {
+            context.read<VideoProvider>().addFromPathList(
+                  pathList: pathList,
+                  videoType: type,
+                );
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   void _createVideoDialog() {
@@ -80,7 +133,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => RenameDialog(
         title: 'New Video',
         onCancel: () {},
-        onSubmit: (text) {
+        onSubmit: (text) async {
           if (text.isEmpty) return;
           final video = VideoModel(
             id: Uuid().v4(),
@@ -90,7 +143,15 @@ class _HomePageState extends State<HomePage> {
             date: DateTime.now().millisecondsSinceEpoch,
             type: VideoTypes.movie,
           );
-          context.read<VideoProvider>().add(video: video);
+          await context.read<VideoProvider>().add(video: video);
+          if (!mounted) return;
+          //go form
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VideoFormScreen(),
+            ),
+          );
         },
       ),
     );

@@ -22,10 +22,14 @@ class _VideoFileBookmarkPageState extends State<VideoFileBookmarkPage> {
   List<VideoFileBookmarkModel> list = [];
 
   void init() async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
     });
+
     final res = await VideoFileBookmarkService.instance.getList();
+
     if (!mounted) return;
     setState(() {
       isLoading = false;

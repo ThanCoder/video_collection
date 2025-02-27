@@ -30,6 +30,8 @@ class _LibPageState extends State<LibPage> {
   List<VideoFileModel> seriesList = [];
 
   void init() async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
     });
@@ -69,14 +71,59 @@ class _LibPageState extends State<LibPage> {
         seriesList = allList.where((vd) => idSet.contains(vd.videoId)).toList();
       }
     }
+    if (!mounted) return;
 
     setState(() {
       isLoading = false;
     });
   }
 
-  Widget _getListWidget() {
-    return ListView(
+  List<VideoFileModel> _getListFromType(VideoTypes type) {
+    if (type == VideoTypes.movie) {
+      return movieList;
+    } else if (type == VideoTypes.music) {
+      return musicList;
+    } else if (type == VideoTypes.porns) {
+      return pornsList;
+    } else if (type == VideoTypes.series) {
+      return seriesList;
+    }
+
+    return [];
+  }
+
+  List<Widget> _getListWidget() {
+    return List.generate(
+      VideoTypes.values.length,
+      (index) {
+        final type = VideoTypes.values[index];
+        final list = _getListFromType(type);
+        return VideoFileSeeAllListView(
+          title: type.name.toCaptalize(),
+          list: list,
+          onClick: (video) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VideoPlayerScreen(video: video),
+              ),
+            );
+          },
+          onSeeAll: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AllVideoFileScreen(
+                  title: type.name.toCaptalize(),
+                  list: list,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    /*return ListView(
       children: [
         //lates
         VideoFileSeeAllListView(
@@ -191,16 +238,47 @@ class _LibPageState extends State<LibPage> {
         ),
       ],
     );
+    */
   }
 
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      contentPadding: 2,
-      appBar: AppBar(
-        title: Text('Book Mark'),
-      ),
-      body: isLoading ? TLoader() : _getListWidget(),
-    );
+        // contentPadding: 2,
+        appBar: AppBar(
+          title: Text('Book Mark'),
+        ),
+        body: isLoading
+            ? TLoader()
+            : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    //latest
+                    VideoFileSeeAllListView(
+                      title: 'Video အသစ်များ',
+                      list: latestList,
+                      onClick: (video) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                VideoPlayerScreen(video: video),
+                          ),
+                        );
+                      },
+                      onSeeAll: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AllVideoFileScreen(
+                                title: 'Video အားလုံး', list: allList),
+                          ),
+                        );
+                      },
+                    ),
+                    ..._getListWidget(),
+                  ],
+                ),
+              ));
   }
 }
