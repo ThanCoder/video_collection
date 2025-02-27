@@ -64,6 +64,16 @@ class FileScannerService {
         } catch (e) {
           debugPrint('scan-isolate: ${e.toString()}');
         }
+        //sort
+        _list.sort((a, b) {
+          final af = File(a);
+          final bf = File(b);
+          return af
+              .statSync()
+              .modified
+              .millisecondsSinceEpoch
+              .compareTo(bf.statSync().modified.millisecondsSinceEpoch);
+        });
 
         return _list;
       });

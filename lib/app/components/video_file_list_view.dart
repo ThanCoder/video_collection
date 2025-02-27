@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:video_collection/app/components/video_file_bookmark_button.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/utils/index.dart';
@@ -61,6 +62,11 @@ class VideoFileListView extends StatelessWidget {
                         Text(file.title),
                         Text(getParseFileSize(file.size.toDouble())),
                         Text(getParseDate(file.date)),
+                        VideoFileBookmarkButton(
+                          videoFile: file,
+                          coverPath: _getCoverPath(file),
+                          filePath: file.path,
+                        ),
                       ],
                     ),
                   ),

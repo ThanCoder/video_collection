@@ -8,11 +8,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 4,
       child: Scaffold(
         body: TabBarView(
           children: [
             HomePage(),
+            LibPage(),
+            VideoFileBookmarkPage(),
             AppMorePage(),
           ],
         ),
@@ -21,6 +23,14 @@ class HomeScreen extends StatelessWidget {
             Tab(
               text: 'Home',
               icon: Icon(Icons.home),
+            ),
+            Tab(
+              text: 'Libary',
+              icon: Icon(Icons.local_library_rounded),
+            ),
+            Tab(
+              text: 'BookMark',
+              icon: Icon(Icons.library_books),
             ),
             Tab(
               text: 'More',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/proviers/video_provider.dart';
+import 'package:video_collection/app/services/video_services.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
 class VideoHomeFormPage extends StatefulWidget {
@@ -39,7 +40,9 @@ class _VideoHomeFormPageState extends State<VideoHomeFormPage> {
           spacing: 10,
           children: [
             //cover
-            CoverComponents(coverPath: currentVideo!.coverPath),
+            CoverComponents(
+                coverPath:
+                    '${VideoServices.instance.getSourcePath(currentVideo!.id)}/cover.png'),
             //title
             TTextField(
               label: Text('Title'),

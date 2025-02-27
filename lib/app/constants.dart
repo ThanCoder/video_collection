@@ -15,6 +15,7 @@ const appConfigFileName = 'main.config.json';
 const appMainDatabaseName = 'main.db.json';
 const appVideoDatabaseName = 'video.db.json';
 const appVideoFileDatabaseName = 'videoFiles.db.json';
+const appVideoFileBookmarkDatabaseName = 'videoFiles.bookmark.db.json';
 const appVideoContentCoverDatabaseName = 'contentCover.db.json';
 const appGenresDatabaseName = 'genres.db.json';
 

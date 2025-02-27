@@ -41,67 +41,70 @@ class _VideoContentScreenState extends State<VideoContentScreen> {
           ),
         ],
       ),
-      body: Column(
-        spacing: 10,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: MyImageFile(
-                  path: video.coverPath,
-                  borderRadius: 5,
+      body: SingleChildScrollView(
+        child: Column(
+          spacing: 10,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 10,
+              children: [
+                SizedBox(
+                  width: 150,
+                  height: 150,
+                  child: MyImageFile(
+                    path: video.coverPath,
+                    borderRadius: 5,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 10,
-                  children: [
-                    Text(video.title),
-                    Text(video.genres),
-                    Text(video.type.name),
-                    Text(getParseDate(video.date)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
+                    children: [
+                      Text(video.title),
+                      Text(video.genres),
+                      Text(video.type.name),
+                      Text(getParseDate(video.date)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const Divider(),
-          Wrap(
-            spacing: 5,
-            runSpacing: 5,
-            runAlignment: WrapAlignment.start,
-            children: [
-              videoFileList.isEmpty
-                  ? SizedBox.shrink()
-                  : ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VideoPlayerWithListScreen(
-                              list: videoFileList,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text('Start Watch'),
-                    ),
-            ],
-          ),
-          const Divider(),
-          //desc
-          Text(
-            video.desc,
-            style: TextStyle(
-              fontSize: 15,
+              ],
             ),
-          ),
-        ],
+            const Divider(),
+            Wrap(
+              spacing: 5,
+              runSpacing: 5,
+              runAlignment: WrapAlignment.start,
+              children: [
+                videoFileList.isEmpty
+                    ? SizedBox.shrink()
+                    : ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VideoPlayerWithListScreen(
+                                list: videoFileList,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text('Start Watch'),
+                      ),
+              ],
+            ),
+            const Divider(),
+            VideoContentCoverListView(videoId: video.id),
+            //desc
+            Text(
+              video.desc,
+              style: TextStyle(
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -65,13 +65,31 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       child: MyScaffold(
         contentPadding: 0,
         appBar: AppBar(
-          title: Text(widget.video.title),
+          title: Text('Video Player'),
         ),
-        body: AspectRatio(
-          aspectRatio: player.state.videoParams.aspect ?? 16 / 9,
-          child: Video(
-            controller: _controller,
-          ),
+        body: Column(
+          spacing: 10,
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 1100,
+                ),
+                child: AspectRatio(
+                  aspectRatio: player.state.videoParams.aspect ?? 16 / 9,
+                  child: Video(
+                    controller: _controller,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(widget.video.title),
+              ),
+            ),
+          ],
         ),
       ),
     );

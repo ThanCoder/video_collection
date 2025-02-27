@@ -65,9 +65,12 @@ class _CoverComponentsState extends State<CoverComponents> {
       if (res != null && res.files.isNotEmpty) {
         final path = res.files.first.path!;
         final file = File(path);
-        await file.copy(widget.coverPath);
-        //clear image cache
-        clearAndRefreshImage();
+        if (widget.coverPath.isNotEmpty) {
+          await file.copy(widget.coverPath);
+
+          //clear image cache
+          await clearAndRefreshImage();
+        }
       }
       setState(() {
         isLoading = false;

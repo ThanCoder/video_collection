@@ -3,15 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_collection/app/components/index.dart';
-import 'package:video_collection/app/components/video_file_list_view.dart';
 import 'package:video_collection/app/constants.dart';
 import 'package:video_collection/app/dialogs/index.dart';
+import 'package:video_collection/app/extensions/index.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/proviers/index.dart';
 import 'package:video_collection/app/screens/index.dart';
 import 'package:video_collection/app/services/core/app_services.dart';
 import 'package:video_collection/app/services/video_services.dart';
+import 'package:video_collection/app/utils/index.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
 class VideoFileFormPage extends StatefulWidget {
@@ -56,11 +57,20 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
         .addFromPathList(videoId: video!.id, pathList: pathList);
   }
 
+  String _getCoverPath(VideoFileModel file) {
+    final coverFile =
+        File('${getCachePath()}/${file.title.getName(withExt: false)}.png');
+    if (coverFile.existsSync()) {
+      return coverFile.path;
+    }
+    return '${getCachePath()}/${file.id}.png';
+  }
+
   Future<void> _setCover(VideoFileModel videoFile) async {
-    final file = File(videoFile.coverPath);
+    final file = File(_getCoverPath(videoFile));
     final oldCover =
         File('${VideoServices.instance.getSourcePath(video!.id)}/cover.png');
-    if (await oldCover.exists()) {
+    if (await file.exists() && await oldCover.exists()) {
       await oldCover.delete();
     }
     if (await file.exists()) {

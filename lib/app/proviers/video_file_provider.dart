@@ -163,11 +163,12 @@ class VideoFileProvider with ChangeNotifier {
         //is video file
         final newVideo = VideoFileModel(
           id: id,
+          videoId: videoId,
           title: path.getName(),
           coverPath: '${getCachePath()}/$id.png',
           path: isMoveVideoFile ? videoMovePath : path,
           size: videoFileSize,
-          date: DateTime.now().millisecondsSinceEpoch,
+          date: videoFile.statSync().modified.millisecondsSinceEpoch,
         );
         //add ui
         _list.add(newVideo);
@@ -224,11 +225,12 @@ class VideoFileProvider with ChangeNotifier {
         //is video file
         final newVideo = VideoFileModel(
           id: id,
+          videoId: videoId,
           title: file.getName(),
           coverPath: '${getCachePath()}/$id.png',
           path: isMoveVideoFile ? videoMovePath : file.path,
           size: videoFileSize,
-          date: DateTime.now().millisecondsSinceEpoch,
+          date: videoFile.statSync().modified.millisecondsSinceEpoch,
         );
         //add ui
         _list.add(newVideo);

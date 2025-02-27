@@ -34,19 +34,19 @@ class _VideoFormScreenState extends State<VideoFormScreen> {
             onPressed: video != null ? _save : null,
             icon: Icon(Icons.save_as_outlined),
           ),
-          IconButton(
-            color: Colors.red,
-            onPressed: () {
-              context.read<VideoProvider>().deleteWithConfirm(
-                context,
-                video: video,
-                onDoned: () {
-                  Navigator.pop(context);
-                },
-              );
-            },
-            icon: Icon(Icons.delete_forever),
-          ),
+          // IconButton(
+          //   color: Colors.red,
+          //   onPressed: () {
+          //     context.read<VideoProvider>().deleteWithConfirm(
+          //       context,
+          //       video: video,
+          //       onDoned: () {
+          //         Navigator.pop(context);
+          //       },
+          //     );
+          //   },
+          //   icon: Icon(Icons.delete_forever),
+          // ),
         ],
       ),
       body: DefaultTabController(

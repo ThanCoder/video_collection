@@ -21,7 +21,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => VideoProvider()),
         ChangeNotifierProvider(create: (context) => VideoFileProvider()),
-        // ChangeNotifierProvider(create: (context) => ()),
+        ChangeNotifierProvider(create: (context) => ContentFileProvider()),
       ],
       child: const MyApp(),
     ),
