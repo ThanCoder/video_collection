@@ -1,4 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:video_collection/app/enums/video_file_info_types.dart';
+
 class VideoFileModel {
   String id;
   String videoId;
@@ -7,14 +9,21 @@ class VideoFileModel {
   String path;
   int size;
   int date;
+  VideoFileInfoTypes type;
+  String desc;
+
+  bool isSelected = false;
+
   VideoFileModel({
     required this.id,
     required this.videoId,
     required this.title,
-    required this.coverPath,
+    this.coverPath = '',
     required this.path,
     required this.size,
     required this.date,
+    this.type = VideoFileInfoTypes.info,
+    this.desc = '',
   });
 
   factory VideoFileModel.fromMap(
@@ -25,6 +34,9 @@ class VideoFileModel {
     if (videoId.isNotEmpty) {
       vId = videoId;
     }
+    final typeName = map['type'] ?? '';
+    var type = getType(typeName);
+
     return VideoFileModel(
       id: map['id'],
       videoId: vId,
@@ -33,6 +45,7 @@ class VideoFileModel {
       path: map['path'],
       size: map['size'] ?? 0,
       date: map['date'],
+      type: type,
     );
   }
 
@@ -44,5 +57,6 @@ class VideoFileModel {
         'path': path,
         'size': size,
         'date': date,
+        'type': type.name,
       };
 }

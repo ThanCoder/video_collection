@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_collection/app/components/video_list_view.dart';
+import 'package:video_collection/app/customs/video_search_delegate.dart';
 import 'package:video_collection/app/dialogs/index.dart';
 import 'package:video_collection/app/enums/video_types.dart';
 import 'package:video_collection/app/models/index.dart';
@@ -166,6 +167,27 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(appTitle),
         actions: [
+          //search
+          IconButton(
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: VideoSearchDelegate(
+                  onClicked: (videoFile) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            VideoPlayerScreen(video: videoFile),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+            icon: Icon(Icons.search),
+          ),
+
           IconButton(
             onPressed: _showMenu,
             icon: Icon(Icons.more_vert),

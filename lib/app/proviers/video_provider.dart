@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_collection/app/dialogs/index.dart';
+import 'package:video_collection/app/enums/video_file_info_types.dart';
 import 'package:video_collection/app/enums/video_types.dart';
 import 'package:video_collection/app/extensions/file_system_entity_extension.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
@@ -176,7 +177,10 @@ class VideoProvider with ChangeNotifier {
         //video fiel move path
         final videoMovePath = '$videoSrcPath/$videoFileId';
         //config က မှန်ရင် move
+        var videoFileType = VideoFileInfoTypes.info;
         if (isMoveVideoFile) {
+          //is movie type
+          videoFileType = VideoFileInfoTypes.realData;
           await vFile.rename(videoMovePath);
         }
 
@@ -188,6 +192,7 @@ class VideoProvider with ChangeNotifier {
           path: path,
           size: videoFileSize,
           date: vFile.statSync().modified.millisecondsSinceEpoch,
+          type: videoFileType,
         );
 
         allVideoFileList.insert(0, newVideoFile);

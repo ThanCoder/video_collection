@@ -45,11 +45,13 @@ class _VideoScannerScreenState extends State<VideoScannerScreen> {
         outDirPath: getCachePath(),
         videoPathList: res,
       );
+      if (!mounted) return;
       setState(() {
         list = res.map((path) => VideoScannerModel.fromPath(path)).toList();
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });

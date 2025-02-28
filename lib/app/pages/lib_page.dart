@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/enums/video_types.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
+import 'package:video_collection/app/proviers/index.dart';
 import 'package:video_collection/app/screens/index.dart';
 import 'package:video_collection/app/services/index.dart';
 import 'package:video_collection/app/widgets/core/index.dart';
@@ -22,12 +24,14 @@ class _LibPageState extends State<LibPage> {
   }
 
   bool isLoading = false;
-  List<VideoFileModel> allList = [];
-  List<VideoFileModel> latestList = [];
-  List<VideoFileModel> movieList = [];
-  List<VideoFileModel> musicList = [];
-  List<VideoFileModel> pornsList = [];
-  List<VideoFileModel> seriesList = [];
+  int takeLimit = 5;
+  List<VideoFileModel> allVideoFileList = [];
+  List<VideoModel> allVideoList = [];
+  List<VideoFileModel> latestVideoFileList = [];
+  List<VideoModel> movieList = [];
+  List<VideoModel> musicList = [];
+  List<VideoModel> pornsList = [];
+  List<VideoModel> seriesList = [];
 
   void init() async {
     if (!mounted) return;
@@ -35,10 +39,10 @@ class _LibPageState extends State<LibPage> {
     setState(() {
       isLoading = true;
     });
-    allList = await VideoFileService.instance.getAllVideoList();
-    final allVideoList = await VideoServices.instance.getVideoList();
+    allVideoFileList = await VideoFileService.instance.getAllVideoList();
+    allVideoList = await VideoServices.instance.getVideoList();
 
-    latestList = allList.take(5).toList();
+    latestVideoFileList = allVideoFileList.take(takeLimit).toList();
 
     //get videos type
     final types = allVideoList.map((vd) => vd.type).toSet();
@@ -50,25 +54,37 @@ class _LibPageState extends State<LibPage> {
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        movieList = allList.where((vd) => idSet.contains(vd.videoId)).toList();
+        movieList = allVideoList
+            .where((vd) => idSet.contains(vd.id))
+            .take(takeLimit)
+            .toList();
       } else if (type == VideoTypes.music) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        musicList = allList.where((vd) => idSet.contains(vd.videoId)).toList();
+        musicList = allVideoList
+            .where((vd) => idSet.contains(vd.id))
+            .take(takeLimit)
+            .toList();
       } else if (type == VideoTypes.porns) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        pornsList = allList.where((vd) => idSet.contains(vd.videoId)).toList();
+        pornsList = allVideoList
+            .where((vd) => idSet.contains(vd.id))
+            .take(takeLimit)
+            .toList();
       } else if (type == VideoTypes.series) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        seriesList = allList.where((vd) => idSet.contains(vd.videoId)).toList();
+        seriesList = allVideoList
+            .where((vd) => idSet.contains(vd.id))
+            .take(takeLimit)
+            .toList();
       }
     }
     if (!mounted) return;
@@ -78,7 +94,7 @@ class _LibPageState extends State<LibPage> {
     });
   }
 
-  List<VideoFileModel> _getListFromType(VideoTypes type) {
+  List<VideoModel> _getListFromType(VideoTypes type) {
     if (type == VideoTypes.movie) {
       return movieList;
     } else if (type == VideoTypes.music) {
@@ -98,14 +114,15 @@ class _LibPageState extends State<LibPage> {
       (index) {
         final type = VideoTypes.values[index];
         final list = _getListFromType(type);
-        return VideoFileSeeAllListView(
+        return VideoSeeAllListView(
           title: type.name.toCaptalize(),
           list: list,
           onClick: (video) {
+            context.read<VideoProvider>().setCurrentVideo(video);
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
+                builder: (context) => VideoContentScreen(),
               ),
             );
           },
@@ -113,7 +130,7 @@ class _LibPageState extends State<LibPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AllVideoFileScreen(
+                builder: (context) => AllVideoScreen(
                   title: type.name.toCaptalize(),
                   list: list,
                 ),
@@ -123,122 +140,6 @@ class _LibPageState extends State<LibPage> {
         );
       },
     );
-    /*return ListView(
-      children: [
-        //lates
-        VideoFileSeeAllListView(
-          title: 'Video အသစ်များ',
-          list: latestList,
-          onClick: (video) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
-              ),
-            );
-          },
-          onSeeAll: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AllVideoFileScreen(title: 'Video အားလုံး', list: allList),
-              ),
-            );
-          },
-        ),
-        //movie
-        VideoFileSeeAllListView(
-          title: VideoTypes.movie.name.toCaptalize(),
-          list: movieList,
-          onClick: (video) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
-              ),
-            );
-          },
-          onSeeAll: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AllVideoFileScreen(title: 'Movies', list: movieList),
-              ),
-            );
-          },
-        ),
-        //music
-        VideoFileSeeAllListView(
-          title: VideoTypes.music.name.toCaptalize(),
-          list: musicList,
-          onClick: (video) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
-              ),
-            );
-          },
-          onSeeAll: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AllVideoFileScreen(title: 'Movies', list: musicList),
-              ),
-            );
-          },
-        ),
-        //series
-        VideoFileSeeAllListView(
-          title: VideoTypes.music.name.toCaptalize(),
-          list: seriesList,
-          onClick: (video) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
-              ),
-            );
-          },
-          onSeeAll: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AllVideoFileScreen(
-                    title: VideoTypes.music.name.toCaptalize(),
-                    list: seriesList),
-              ),
-            );
-          },
-        ),
-        //porns
-        VideoFileSeeAllListView(
-          title: VideoTypes.porns.name.toCaptalize(),
-          list: pornsList,
-          onClick: (video) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VideoPlayerScreen(video: video),
-              ),
-            );
-          },
-          onSeeAll: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AllVideoFileScreen(title: 'Porns', list: pornsList),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-    */
   }
 
   @override
@@ -256,7 +157,7 @@ class _LibPageState extends State<LibPage> {
                     //latest
                     VideoFileSeeAllListView(
                       title: 'Video အသစ်များ',
-                      list: latestList,
+                      list: latestVideoFileList,
                       onClick: (video) {
                         Navigator.push(
                           context,
@@ -271,7 +172,7 @@ class _LibPageState extends State<LibPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => AllVideoFileScreen(
-                                title: 'Video အားလုံး', list: allList),
+                                title: 'Video အားလုံး', list: allVideoFileList),
                           ),
                         );
                       },

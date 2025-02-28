@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/widgets/core/index.dart';
 
-class VideoFileSeeAllListView extends StatelessWidget {
+class VideoSeeAllListView extends StatelessWidget {
   String title;
-  List<VideoFileModel> list;
-  void Function(VideoFileModel video) onClick;
+  List<VideoModel> list;
+  void Function(VideoModel video) onClick;
   void Function() onSeeAll;
-  VideoFileSeeAllListView({
+  VideoSeeAllListView({
     super.key,
     this.title = 'Untitled',
     required this.list,

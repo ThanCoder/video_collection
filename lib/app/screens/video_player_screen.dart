@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/core/index.dart';
+import 'package:video_collection/app/services/index.dart';
 import 'package:video_collection/app/widgets/core/index.dart';
 
 import '../models/index.dart';
@@ -67,29 +69,53 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         appBar: AppBar(
           title: Text('Video Player'),
         ),
-        body: Column(
-          spacing: 10,
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: 1100,
-                ),
-                child: AspectRatio(
-                  aspectRatio: player.state.videoParams.aspect ?? 16 / 9,
-                  child: Video(
-                    controller: _controller,
+        body: SingleChildScrollView(
+          child: Column(
+            spacing: 10,
+            children: [
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 1100,
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: player.state.videoParams.aspect ?? 16 / 9,
+                    child: Video(
+                      controller: _controller,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Padding(
+              Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(widget.video.title),
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    Text(widget.video.title),
+                    FutureBuilder(
+                      future: VideoFileService.instance
+                          .getDesc(videoFile: widget.video),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ExpandableText(
+                            snapshot.data!,
+                            expandText: 'Read More',
+                            collapseText: 'Read Less',
+                            collapseOnTextTap: true,
+                            maxLines: 3,
+                            linkColor: Colors.blue,
+                            animation: true,
+                          );
+                        }
+                        return SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
+                //desc
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

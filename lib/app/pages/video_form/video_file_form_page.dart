@@ -5,14 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/constants.dart';
 import 'package:video_collection/app/dialogs/index.dart';
-import 'package:video_collection/app/extensions/index.dart';
+import 'package:video_collection/app/dialogs/video_file_desc_edit_dialog.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/proviers/index.dart';
 import 'package:video_collection/app/screens/index.dart';
 import 'package:video_collection/app/services/core/app_services.dart';
 import 'package:video_collection/app/services/video_services.dart';
-import 'package:video_collection/app/utils/index.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
 class VideoFileFormPage extends StatefulWidget {
@@ -30,6 +29,8 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
   }
 
   VideoModel? video;
+  bool isMultipleSelect = false;
+  bool isMultipleSelectAll = false;
 
   Future<void> init() async {
     video = context.read<VideoProvider>().getCurrentVideo;
@@ -57,17 +58,8 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
         .addFromPathList(videoId: video!.id, pathList: pathList);
   }
 
-  String _getCoverPath(VideoFileModel file) {
-    final coverFile =
-        File('${getCachePath()}/${file.title.getName(withExt: false)}.png');
-    if (coverFile.existsSync()) {
-      return coverFile.path;
-    }
-    return '${getCachePath()}/${file.id}.png';
-  }
-
   Future<void> _setCover(VideoFileModel videoFile) async {
-    final file = File(_getCoverPath(videoFile));
+    final file = File(videoFile.coverPath);
     final oldCover =
         File('${VideoServices.instance.getSourcePath(video!.id)}/cover.png');
     if (await file.exists() && await oldCover.exists()) {
@@ -125,6 +117,61 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
     );
   }
 
+  void _deleteConfirm(VideoFileModel videoFile) {
+    final provider = context.read<VideoFileProvider>();
+    final deleteList = provider.getList.where((vf) => vf.isSelected).toList();
+    final titleSet = deleteList.map((vf) => vf.title).toSet();
+
+    String title = isMultipleSelect ? titleSet.join(',') : videoFile.title;
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        contentText: '`$title` ကိုသင်ဖျက်ချင်တာ သေချာပြီလား',
+        onCancel: () {},
+        onSubmit: () async {
+          //delete multi files
+          if (isMultipleSelect) {
+            provider.deleteMultiple(
+                videoFileList: deleteList, videoId: video!.id);
+            return;
+          }
+          //single file
+          provider.delete(
+            videoFile: videoFile,
+            videoId: video!.id,
+          );
+        },
+      ),
+    );
+  }
+
+  void _showVideoFileInfoDialog(VideoFileModel videoFile) {
+    showDialog(
+      context: context,
+      builder: (context) => VideoFileInfoTypesDialog(
+          type: videoFile.type,
+          onChoosed: (type) {
+            final provider = context.read<VideoFileProvider>();
+            if (isMultipleSelect) {
+              //is multiple
+              provider.updateIsSelectedToVideoFileInfoTypes(
+                  videoId: video!.id, type: type);
+              return;
+            }
+            //is single
+            videoFile.type = type;
+            provider.update(videoId: video!.id, videoFile: videoFile);
+          }),
+    );
+  }
+
+  void _setDescription(VideoFileModel videoFile) {
+    showDialog(
+      context: context,
+      builder: (context) => VideoFileDescEditDialog(videoFile: videoFile),
+    );
+  }
+
   void _showContextMenu(VideoFileModel videoFile) {
     showModalBottomSheet(
       context: context,
@@ -135,6 +182,49 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
           ),
           child: Column(
             children: [
+              //multiple select
+              ListTile(
+                leading: Icon(isMultipleSelect ? Icons.undo : Icons.select_all),
+                title: Text(isMultipleSelect
+                    ? 'UnSelect All && Close'
+                    : 'Multiple Select'),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (isMultipleSelect) {
+                    context.read<VideoFileProvider>().setSelectedAll(false);
+                    setState(() {
+                      isMultipleSelectAll = false;
+                    });
+                  }
+                  //select စလုပ်ရင် item တစ်ခုကို select လုပ်ပေးထားမယ်
+                  if (!isMultipleSelect) {
+                    context.read<VideoFileProvider>().setSelected(videoFile);
+                  }
+                  setState(() {
+                    isMultipleSelect = !isMultipleSelect;
+                  });
+                },
+              ),
+              //multiple select all
+              isMultipleSelect
+                  ? ListTile(
+                      leading: Icon(
+                          isMultipleSelectAll ? Icons.undo : Icons.select_all),
+                      title: Text(isMultipleSelectAll
+                          ? 'UnSelect All'
+                          : 'Multiple Select All'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          isMultipleSelectAll = !isMultipleSelectAll;
+                        });
+
+                        context
+                            .read<VideoFileProvider>()
+                            .setSelectedAll(isMultipleSelectAll);
+                      },
+                    )
+                  : SizedBox.shrink(),
               //delete
               ListTile(
                 iconColor: dangerColor,
@@ -143,20 +233,7 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
                 title: Text('Delete'),
                 onTap: () {
                   Navigator.pop(context);
-                  showDialog(
-                    context: context,
-                    builder: (context) => ConfirmDialog(
-                      contentText:
-                          '`${videoFile.title}` ကိုသင်ဖျက်ချင်တာ သေချာပြီလား',
-                      onCancel: () {},
-                      onSubmit: () async {
-                        context.read<VideoFileProvider>().delete(
-                              videoFile: videoFile,
-                              videoId: video!.id,
-                            );
-                      },
-                    ),
-                  );
+                  _deleteConfirm(videoFile);
                 },
               ),
               //export video
@@ -165,21 +242,52 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
                 title: Text('အပြင်ကို ပြန်ထုတ်မယ်'),
                 onTap: () {
                   Navigator.pop(context);
-                  context
-                      .read<VideoFileProvider>()
-                      .moveOutVideoFileAndRemoveInfo(
-                        videoId: video!.id,
-                        videoFile: videoFile,
-                      );
+                  final provider = context.read<VideoFileProvider>();
+                  if (isMultipleSelect) {
+                    provider.moveOutVideoFileAndRemoveInfoMultiple(
+                      videoId: video!.id,
+                      videoFileList: provider.getList
+                          .where((vf) => vf.isSelected)
+                          .toList(),
+                    );
+                    return;
+                  }
+                  //single
+                  provider.moveOutVideoFileAndRemoveInfo(
+                    videoId: video!.id,
+                    videoFile: videoFile,
+                  );
                 },
               ),
               //set cover
+              isMultipleSelect
+                  ? SizedBox.shrink()
+                  : ListTile(
+                      leading: Icon(Icons.save_alt_sharp),
+                      title: Text('Set Cover'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _setCover(videoFile);
+                      },
+                    ),
+              //set desc
+              isMultipleSelect
+                  ? SizedBox.shrink()
+                  : ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text('Set Description'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _setDescription(videoFile);
+                      },
+                    ),
+              //set video file stype
               ListTile(
-                leading: Icon(Icons.save_alt_sharp),
-                title: Text('Set Cover'),
+                leading: Icon(Icons.add),
+                title: Text('Set Info Type'),
                 onTap: () {
                   Navigator.pop(context);
-                  _setCover(videoFile);
+                  _showVideoFileInfoDialog(videoFile);
                 },
               ),
             ],
@@ -206,6 +314,10 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
                 list: videoFileList,
                 onLongClick: _showContextMenu,
                 onClick: (videoFile) {
+                  if (isMultipleSelect) {
+                    context.read<VideoFileProvider>().setSelected(videoFile);
+                    return;
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(

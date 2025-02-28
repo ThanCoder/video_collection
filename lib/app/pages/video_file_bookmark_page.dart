@@ -108,7 +108,6 @@ class _VideoFileBookmarkPageState extends State<VideoFileBookmarkPage> {
   @override
   Widget build(BuildContext context) {
     return MyScaffold(
-      contentPadding: 2,
       appBar: AppBar(
         title: Text('Book Mark'),
       ),
