@@ -94,7 +94,7 @@ class _VideoContentScreenState extends State<VideoContentScreen> {
                       ),
               ],
             ),
-            const Divider(),
+            videoFileList.isEmpty ? SizedBox.shrink() : const Divider(),
             VideoContentCoverListView(videoId: video.id),
             //desc
             Text(

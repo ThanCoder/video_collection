@@ -78,7 +78,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
   int progressSeconds = 0;
   int currentVideoIndex = 0;
   bool isPlayerSmallSize = false;
-  double? playerHeight = null;
+  double? playerHeight;
   double playerRatio = 16 / 9;
   double mobileVideoPlayerMinHeight = 200;
 
@@ -87,12 +87,20 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
       if (widget.list.isNotEmpty) {
         await player.open(Media(_getFilePath()));
         //listen player loaded or not
-        final dur = await player.stream.duration.first;
-        if (dur > Duration.zero) {
+        //delay
+        await Future.delayed(Duration(milliseconds: 1100));
+
+        //listen player loaded or not
+        if (player.state.duration > Duration.zero) {
           //file ရှိနေတယ်
-          playerRatio = player.state.videoParams.aspect ?? 16 / 9;
-          final height = player.state.height ?? mobileVideoPlayerMinHeight;
-          playerHeight = playerRatio * height;
+          if (!mounted) return;
+          final screenWidth = MediaQuery.of(context).size.width;
+          final ratio = player.state.videoParams.aspect ?? 16 / 9;
+          final calculatedHeight = screenWidth / ratio;
+          setState(() {
+            playerRatio = ratio;
+            playerHeight = calculatedHeight;
+          });
         } else {
           playerHeight = null;
         }
@@ -116,6 +124,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
       duration: Duration(milliseconds: 400),
       child: SizedBox(
         height: playerHeight,
+        width: double.infinity,
         child: AspectRatio(
           aspectRatio: playerRatio,
           child: Video(
@@ -252,10 +261,13 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
             child: Column(
               spacing: 10,
               children: [
-                AspectRatio(
-                  aspectRatio: playerRatio,
-                  child: Video(
-                    controller: _controller,
+                AnimatedSize(
+                  duration: Duration(milliseconds: 200),
+                  child: AspectRatio(
+                    aspectRatio: playerRatio,
+                    child: Video(
+                      controller: _controller,
+                    ),
                   ),
                 ),
                 //desc
@@ -364,13 +376,14 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) async {
         await player.playOrPause();
         await player.dispose();
-        return true;
       },
       child: MyScaffold(
+        contentPadding: 0,
         appBar: Platform.isLinux ? AppBar() : null,
         body: width > 600
             ?

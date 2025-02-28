@@ -1,0 +1,2 @@
+/home/thancoder/projects/flutter_projects/video_collections/android/app/.cxx/Debug/3y12292o/x86/CMakeFiles/edit_cache.dir
+/home/thancoder/projects/flutter_projects/video_collections/android/app/.cxx/Debug/3y12292o/x86/CMakeFiles/rebuild_cache.dir

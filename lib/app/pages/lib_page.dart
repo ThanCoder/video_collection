@@ -159,6 +159,7 @@ class _LibPageState extends State<LibPage> {
                       title: 'Video အသစ်များ',
                       list: latestVideoFileList,
                       onClick: (video) {
+                        // print(video.path);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -47,16 +47,15 @@ class VideoFileService {
   }
 
   Future<List<VideoFileModel>> getAllVideoList() async {
-    final path = getDatabaseSourcePath();
     final cachePath = getCachePath();
-    final appSourcPath = getSourcePath();
+    final appSourcPath = getDatabaseSourcePath();
     final isShowAtLastSingleVideoFile =
         appConfigNotifier.value.isShowAtLeastOneSingleVideoFile;
     //isolate
     return await Isolate.run<List<VideoFileModel>>(() async {
       List<VideoFileModel> _list = [];
       try {
-        final dir = Directory(path);
+        final dir = Directory(appSourcPath);
         if (!await dir.exists()) return _list;
 
         await for (var file in dir.list()) {

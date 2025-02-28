@@ -58,8 +58,8 @@ class _VideoFileBookmarkPageState extends State<VideoFileBookmarkPage> {
     return GridView.builder(
       itemCount: list.length,
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 160,
-        mainAxisExtent: 180,
+        maxCrossAxisExtent: 180,
+        mainAxisExtent: 200,
         mainAxisSpacing: 5,
         crossAxisSpacing: 5,
       ),

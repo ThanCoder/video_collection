@@ -47,22 +47,45 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   int allSeconds = 0;
   int progressSeconds = 0;
+  double? playerHeight;
+  double playerRatio = 16 / 9;
+  double mobileVideoPlayerMinHeight = 200;
 
-  void init() {
+  void init() async {
     try {
-      player.open(Media(widget.video.path));
+      await player.open(Media(widget.video.path));
+      //delay
+      await Future.delayed(Duration(milliseconds: 1100));
+
+      //listen player loaded or not
+      if (player.state.duration > Duration.zero) {
+        //file ရှိနေတယ်
+        if (!mounted) return;
+        final screenWidth = MediaQuery.of(context).size.width;
+        final ratio = player.state.videoParams.aspect ?? 16 / 9;
+        final calculatedHeight = screenWidth / ratio;
+        setState(() {
+          playerRatio = ratio;
+          playerHeight = calculatedHeight;
+        });
+      } else {
+        playerHeight = null;
+      }
     } catch (e) {
+      if (!mounted) return;
       showDialogMessage(context, e.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        await player.playOrPause();
-        await player.dispose();
-        return true;
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          await player.playOrPause();
+          await player.dispose();
+        }
       },
       child: MyScaffold(
         contentPadding: 0,

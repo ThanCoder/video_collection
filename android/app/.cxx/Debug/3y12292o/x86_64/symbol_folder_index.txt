@@ -1,0 +1,1 @@
+/home/thancoder/projects/flutter_projects/video_collections/build/app/intermediates/cxx/Debug/3y12292o/obj/x86_64
