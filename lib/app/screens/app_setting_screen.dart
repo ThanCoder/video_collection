@@ -161,6 +161,20 @@ class _AppSettingScreenState extends State<AppSettingScreen> {
                 },
               ),
             ),
+            //video file အနည်းဆုံး တစ်ခုရှိမှ ပြပေးမယ်
+            ListTileWithDesc(
+              title: 'show Video File At Least One',
+              desc: 'Video File အနည်းဆုံးတစ်ခုရှိမှာ ဖော်ပြပေးမယ်',
+              trailing: Checkbox(
+                value: config.isShowAtLeastOneSingleVideoFile,
+                onChanged: (value) {
+                  setState(() {
+                    config.isShowAtLeastOneSingleVideoFile = value!;
+                    isChanged = true;
+                  });
+                },
+              ),
+            ),
           ],
         ),
         floatingActionButton: isChanged

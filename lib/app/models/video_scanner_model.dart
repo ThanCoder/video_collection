@@ -30,4 +30,9 @@ class VideoScannerModel {
       date: file.statSync().modified.millisecondsSinceEpoch,
     );
   }
+
+  @override
+  String toString() {
+    return name;
+  }
 }

@@ -242,7 +242,7 @@ class VideoFileProvider with ChangeNotifier {
 
       await VideoFileService.instance.setList(videoId: videoId, list: resList);
 
-      await genCover();
+      await initList(videoId: videoId);
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -273,15 +273,19 @@ class VideoFileProvider with ChangeNotifier {
 
         //check config
         bool isMoveVideoFile = appConfigNotifier.value.isMoveVideoFileWithInfo;
+        //video file
         final videoFile = File(path);
         final videoFileSize = videoFile.statSync().size;
         final videoMovePath =
             '${VideoServices.instance.getSourcePath(videoId)}/$id';
         var videoFileType = VideoFileInfoTypes.info;
+        var videoFileDate =
+            videoFile.statSync().modified.millisecondsSinceEpoch;
         if (isMoveVideoFile) {
           //is movie type
           videoFileType = VideoFileInfoTypes.realData;
-
+          //new date
+          videoFileDate = DateTime.now().millisecondsSinceEpoch;
           await videoFile.rename(videoMovePath);
         }
 
@@ -292,7 +296,7 @@ class VideoFileProvider with ChangeNotifier {
           title: path.getName(),
           path: isMoveVideoFile ? videoMovePath : path,
           size: videoFileSize,
-          date: videoFile.statSync().modified.millisecondsSinceEpoch,
+          date: videoFileDate,
           type: videoFileType,
         );
         //add ui
@@ -342,11 +346,15 @@ class VideoFileProvider with ChangeNotifier {
         final videoFileSize = videoFile.statSync().size;
         final videoMovePath =
             '${VideoServices.instance.getSourcePath(videoId)}/$id';
-
         var videoFileType = VideoFileInfoTypes.info;
+        var videoFileDate =
+            videoFile.statSync().modified.millisecondsSinceEpoch;
+
         if (isMoveVideoFile) {
           //is movie type
           videoFileType = VideoFileInfoTypes.realData;
+          //new date
+          videoFileDate = videoFile.statSync().modified.millisecondsSinceEpoch;
 
           await videoFile.rename(videoMovePath);
         }
@@ -358,7 +366,7 @@ class VideoFileProvider with ChangeNotifier {
           title: file.getName(),
           path: isMoveVideoFile ? videoMovePath : file.path,
           size: videoFileSize,
-          date: videoFile.statSync().modified.millisecondsSinceEpoch,
+          date: videoFileDate,
           type: videoFileType,
         );
         newVideo.coverPath =

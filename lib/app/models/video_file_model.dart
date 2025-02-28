@@ -59,4 +59,8 @@ class VideoFileModel {
         'date': date,
         'type': type.name,
       };
+  @override
+  String toString() {
+    return title;
+  }
 }

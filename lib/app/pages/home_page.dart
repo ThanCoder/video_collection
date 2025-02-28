@@ -173,7 +173,16 @@ class _HomePageState extends State<HomePage> {
               showSearch(
                 context: context,
                 delegate: VideoSearchDelegate(
-                  onClicked: (videoFile) {
+                  onVideoClicked: (video) {
+                    context.read<VideoProvider>().setCurrentVideo(video);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VideoContentScreen(),
+                      ),
+                    );
+                  },
+                  onVideoFileClicked: (videoFile) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -7,6 +7,7 @@ import 'package:video_collection/app/constants.dart';
 import 'package:video_collection/app/enums/video_file_info_types.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
+import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/services/video_services.dart';
 import 'package:video_collection/app/utils/index.dart';
 
@@ -49,6 +50,8 @@ class VideoFileService {
     final path = getDatabaseSourcePath();
     final cachePath = getCachePath();
     final appSourcPath = getSourcePath();
+    final isShowAtLastSingleVideoFile =
+        appConfigNotifier.value.isShowAtLeastOneSingleVideoFile;
     //isolate
     return await Isolate.run<List<VideoFileModel>>(() async {
       List<VideoFileModel> _list = [];
@@ -67,7 +70,8 @@ class VideoFileService {
 
           if (dbFile.existsSync()) {
             List<dynamic> resList = jsonDecode(await dbFile.readAsString());
-            final res = resList.map((map) {
+            //check video cover path ကိုပြန်ပြင်ခြင်း
+            var res = resList.map((map) {
               final video = VideoFileModel.fromMap(map, videoId: videoId);
               if (video.type == VideoFileInfoTypes.realData) {
                 video.path = '$srcPath/${video.id}';
@@ -79,6 +83,10 @@ class VideoFileService {
               }
               return video;
             }).toList();
+            //check video file ရှိလား
+            if (isShowAtLastSingleVideoFile) {
+              res = res.where((vf) => File(vf.path).existsSync()).toList();
+            }
             _list.addAll(res);
           }
         }
@@ -96,6 +104,8 @@ class VideoFileService {
     final srcPath = VideoServices.instance.getSourcePath(videoId);
     final path = '$srcPath/$appVideoFileDatabaseName';
     final cachePath = getCachePath();
+    final isShowAtLastSingleVideoFile =
+        appConfigNotifier.value.isShowAtLeastOneSingleVideoFile;
     //isolate
     return await Isolate.run<List<VideoFileModel>>(() async {
       List<VideoFileModel> _list = [];
@@ -104,6 +114,8 @@ class VideoFileService {
 
         if (dbFile.existsSync()) {
           List<dynamic> resList = jsonDecode(await dbFile.readAsString());
+
+          //check video file coverPath
           _list = resList.map((map) {
             final video = VideoFileModel.fromMap(map);
             if (video.type == VideoFileInfoTypes.realData) {
@@ -117,6 +129,11 @@ class VideoFileService {
 
             return video;
           }).toList();
+
+          //check video file ရှိလား
+          if (isShowAtLastSingleVideoFile) {
+            _list = _list.where((vf) => File(vf.path).existsSync()).toList();
+          }
         }
         //sort
         _list.sort((a, b) => a.date.compareTo(b.date));

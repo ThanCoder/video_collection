@@ -43,4 +43,9 @@ class VideoModel {
         'type': type.name,
         'date': date,
       };
+
+  @override
+  String toString() {
+    return title;
+  }
 }

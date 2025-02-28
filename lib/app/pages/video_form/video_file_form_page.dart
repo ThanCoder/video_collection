@@ -31,6 +31,8 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
   VideoModel? video;
   bool isMultipleSelect = false;
   bool isMultipleSelectAll = false;
+  bool isShowSearch = false;
+  List<VideoFileModel> searchResult = [];
 
   Future<void> init() async {
     video = context.read<VideoProvider>().getCurrentVideo;
@@ -303,10 +305,107 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
     final isLoading = provider.isLoading;
     final videoFileList = provider.getList;
     return MyScaffold(
+      appBar: AppBar(
+        title: Text('Video File Form'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                isShowSearch = true;
+              });
+              searchResult.clear();
+              searchResult.addAll(videoFileList);
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
+      ),
       contentPadding: 2,
       body: isLoading
           ? Center(child: TLoader())
-          : RefreshIndicator(
+          : CustomScrollView(
+              slivers: [
+                //search
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  floating: false,
+                  pinned: false,
+                  toolbarHeight:
+                      isShowSearch ? kToolbarHeight : 0, // Space ဖျက်နိုင်
+                  actions: isShowSearch
+                      ? [
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isShowSearch = false;
+                              });
+                            },
+                            icon: Icon(Icons.close),
+                          ),
+                        ]
+                      : null,
+                  flexibleSpace: isShowSearch
+                      ? SearchComponent(
+                          text: '',
+                          onChanged: (text) {
+                            if (text.isEmpty) return;
+                            final res = videoFileList
+                                .where((vf) => vf.title
+                                    .toLowerCase()
+                                    .contains(text.toLowerCase()))
+                                .toList();
+                            setState(() {
+                              searchResult = res;
+                            });
+                          },
+                          onClosed: () {
+                            setState(() {
+                              isShowSearch = false;
+                            });
+                          },
+                        )
+                      : null,
+                ),
+                //list
+                SliverList.builder(
+                  itemCount:
+                      isShowSearch ? searchResult.length : videoFileList.length,
+                  itemBuilder: (context, index) {
+                    final vf = isShowSearch
+                        ? searchResult[index]
+                        : videoFileList[index];
+                    return VideoFileListItem(
+                      vf: vf,
+                      onClick: (videoFile) {
+                        if (isMultipleSelect) {
+                          context
+                              .read<VideoFileProvider>()
+                              .setSelected(videoFile);
+                          return;
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                VideoPlayerScreen(video: videoFile),
+                          ),
+                        );
+                      },
+                      onLongClick: _showContextMenu,
+                    );
+                  },
+                ),
+              ],
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showMenu,
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+/*
+RefreshIndicator(
               onRefresh: () async {
                 await init();
               },
@@ -326,11 +425,5 @@ class _VideoFileFormPageState extends State<VideoFileFormPage> {
                   );
                 },
               ),
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showMenu,
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
+            )
+*/

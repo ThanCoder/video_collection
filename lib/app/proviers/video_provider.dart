@@ -178,9 +178,13 @@ class VideoProvider with ChangeNotifier {
         final videoMovePath = '$videoSrcPath/$videoFileId';
         //config က မှန်ရင် move
         var videoFileType = VideoFileInfoTypes.info;
+        var vfDate = vFile.statSync().modified.millisecondsSinceEpoch;
+
         if (isMoveVideoFile) {
           //is movie type
           videoFileType = VideoFileInfoTypes.realData;
+          //new date
+          vfDate = vFile.statSync().modified.millisecondsSinceEpoch;
           await vFile.rename(videoMovePath);
         }
 
@@ -191,7 +195,7 @@ class VideoProvider with ChangeNotifier {
           coverPath: '',
           path: path,
           size: videoFileSize,
-          date: vFile.statSync().modified.millisecondsSinceEpoch,
+          date: vfDate,
           type: videoFileType,
         );
 

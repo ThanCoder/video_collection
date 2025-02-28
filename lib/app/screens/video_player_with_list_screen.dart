@@ -78,13 +78,27 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
   int progressSeconds = 0;
   int currentVideoIndex = 0;
   bool isPlayerSmallSize = false;
+  double? playerHeight = null;
+  double playerRatio = 16 / 9;
+  double mobileVideoPlayerMinHeight = 200;
 
-  void init() {
+  void init() async {
     try {
       if (widget.list.isNotEmpty) {
-        player.open(Media(_getFilePath()));
+        await player.open(Media(_getFilePath()));
+        //listen player loaded or not
+        final dur = await player.stream.duration.first;
+        if (dur > Duration.zero) {
+          //file ရှိနေတယ်
+          playerRatio = player.state.videoParams.aspect ?? 16 / 9;
+          final height = player.state.height ?? mobileVideoPlayerMinHeight;
+          playerHeight = playerRatio * height;
+        } else {
+          playerHeight = null;
+        }
       }
     } catch (e) {
+      if (!mounted) return;
       showDialogMessage(context, e.toString());
     }
   }
@@ -97,13 +111,13 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
     if (widget.list.isEmpty) {
       return Center(child: Text('Video List မရှိပါ'));
     }
-    final ratio = player.state.videoParams.aspect ?? 16 / 9;
-    // print('$ratio - ${16 / 9}');
+
     return AnimatedSize(
       duration: Duration(milliseconds: 400),
       child: SizedBox(
+        height: playerHeight,
         child: AspectRatio(
-          aspectRatio: ratio,
+          aspectRatio: playerRatio,
           child: Video(
             controller: _controller,
           ),
@@ -238,7 +252,12 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
             child: Column(
               spacing: 10,
               children: [
-                _getVideoWidet(),
+                AspectRatio(
+                  aspectRatio: playerRatio,
+                  child: Video(
+                    controller: _controller,
+                  ),
+                ),
                 //desc
                 _getDescWidget(),
               ],
@@ -260,13 +279,11 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
         //video
         SliverAppBar(
           automaticallyImplyLeading: false,
-          // expandedHeight: 250.0, // Height of the app bar when expanded
+          expandedHeight: playerHeight, // Height of the app bar when expanded
           floating: false,
-          toolbarHeight: 250,
+          collapsedHeight: mobileVideoPlayerMinHeight,
           pinned: true, // Makes the app bar sticky at the top
-          flexibleSpace: FlexibleSpaceBar(
-            background: _getVideoWidet(),
-          ),
+          flexibleSpace: _getVideoWidet(),
         ),
         //desc
         SliverToBoxAdapter(

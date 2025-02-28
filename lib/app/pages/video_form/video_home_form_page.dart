@@ -29,51 +29,73 @@ class _VideoHomeFormPageState extends State<VideoHomeFormPage> {
     descController.text = video.desc;
   }
 
+  void _save() async {
+    final provider = context.read<VideoProvider>();
+    final video = provider.getCurrentVideo;
+    if (video == null) return;
+    await provider.update(video: video);
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentVideo = context.read<VideoProvider>().getCurrentVideo;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            //cover
-            CoverComponents(
-                coverPath:
-                    '${VideoServices.instance.getSourcePath(currentVideo!.id)}/cover.png'),
-            //title
-            TTextField(
-              label: Text('Title'),
-              controller: titleController,
-              onChanged: (value) {
-                currentVideo.title = value;
-              },
-            ),
-            //type
-            Row(
-              spacing: 10,
-              children: [
-                Text('Video Type'),
-                VideoTypeChooserComponent(
-                  type: currentVideo.type,
-                  onChanged: (type) {
-                    currentVideo.type = type;
-                  },
-                ),
-              ],
-            ),
-            //desc
-            TTextField(
-              label: Text('Description'),
-              controller: descController,
-              maxLines: 5,
-              onChanged: (value) {
-                currentVideo.desc = value;
-              },
-            ),
-          ],
+    final video = context.watch<VideoProvider>().getCurrentVideo;
+    return MyScaffold(
+      appBar: AppBar(
+        title: Text('Video Form `${video!.title}`'),
+        actions: [
+          IconButton(
+            // ignore: unnecessary_null_comparison
+            onPressed: video != null ? _save : null,
+            icon: Icon(Icons.save_as_outlined),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              //cover
+              CoverComponents(
+                  coverPath:
+                      '${VideoServices.instance.getSourcePath(currentVideo!.id)}/cover.png'),
+              //title
+              TTextField(
+                label: Text('Title'),
+                controller: titleController,
+                onChanged: (value) {
+                  currentVideo.title = value;
+                },
+              ),
+              //type
+              Row(
+                spacing: 10,
+                children: [
+                  Text('Video Type'),
+                  VideoTypeChooserComponent(
+                    type: currentVideo.type,
+                    onChanged: (type) {
+                      currentVideo.type = type;
+                    },
+                  ),
+                ],
+              ),
+              //desc
+              TTextField(
+                label: Text('Description'),
+                controller: descController,
+                maxLines: 5,
+                onChanged: (value) {
+                  currentVideo.desc = value;
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
