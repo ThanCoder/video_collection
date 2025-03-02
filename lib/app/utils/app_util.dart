@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 String getParseMinutes(int minutes) {
@@ -5,7 +6,9 @@ String getParseMinutes(int minutes) {
   try {
     final dur = Duration(minutes: minutes);
     res = '${_getTwoZero(dur.inHours)}:${_getTwoZero(dur.inMinutes)}';
-  } catch (e) {}
+  } catch (e) {
+    debugPrint('getParseMinutes: ${e.toString()}');
+  }
   return res;
 }
 
@@ -20,7 +23,9 @@ String getParseDate(int date) {
 
     // Format DateTime
     res = DateFormat('yyyy-MM-dd HH:mm:ss').format(lastModifiedDateTime);
-  } catch (e) {}
+  } catch (e) {
+    debugPrint('getParseDate: ${e.toString()}');
+  }
   return res;
 }
 

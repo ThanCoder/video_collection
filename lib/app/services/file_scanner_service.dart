@@ -16,7 +16,7 @@ class FileScannerService {
   List<String> linuxScanFolder = ['Videos', 'Downloads', 'Documents'];
 
   Future<List<String>> getList({String initPath = ''}) async {
-    List<String> list = [];
+    List<String> fileList = [];
     try {
       var rootPath = await ThanPkg.platform.getAppExternalPath();
       if (Platform.isLinux) {
@@ -26,10 +26,10 @@ class FileScannerService {
       if (initPath.isNotEmpty) {
         rootPath = initPath;
       }
-      if (rootPath == null) return list;
+      if (rootPath == null) return fileList;
 
-      list = await Isolate.run<List<String>>(() async {
-        List<String> _list = [];
+      fileList = await Isolate.run<List<String>>(() async {
+        List<String> list = [];
 
         try {
           void scan(String path) {
@@ -50,7 +50,7 @@ class FileScannerService {
                 //video file ဖြစ်နေလား စစ်မယ်
                 if (!isVideoFile(file.path)) continue;
                 //video file ဖြစ်နေရင်
-                _list.add(file.path);
+                list.add(file.path);
               } catch (e) {
                 debugPrint(e.toString());
               }
@@ -69,7 +69,7 @@ class FileScannerService {
           debugPrint('scan-isolate: ${e.toString()}');
         }
         //sort
-        _list.sort((a, b) {
+        list.sort((a, b) {
           final af = File(a);
           final bf = File(b);
           return af
@@ -79,12 +79,12 @@ class FileScannerService {
               .compareTo(bf.statSync().modified.millisecondsSinceEpoch);
         });
 
-        return _list;
+        return list;
       });
     } catch (e) {
       debugPrint('getList: ${e.toString()}');
     }
-    return list;
+    return fileList;
   }
 
   bool isVideoFile(String path) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/enums/video_types.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
@@ -7,6 +8,7 @@ import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/proviers/index.dart';
 import 'package:video_collection/app/screens/index.dart';
 import 'package:video_collection/app/services/index.dart';
+import 'package:video_collection/app/utils/index.dart';
 import 'package:video_collection/app/widgets/core/index.dart';
 
 class LibPage extends StatefulWidget {
@@ -40,9 +42,15 @@ class _LibPageState extends State<LibPage> {
       isLoading = true;
     });
     allVideoFileList = await VideoFileService.instance.getAllVideoList();
-    allVideoList = await VideoServices.instance.getVideoList();
 
+    //all video list
+    allVideoList = await VideoServices.instance.getVideoList();
+    //latest video file
     latestVideoFileList = allVideoFileList.take(takeLimit).toList();
+    //gen cover
+    await ThanPkg.platform.genVideoCover(
+        outDirPath: getCachePath(),
+        videoPathList: latestVideoFileList.map((vf) => vf.path).toList());
 
     //get videos type
     final types = allVideoList.map((vd) => vd.type).toSet();

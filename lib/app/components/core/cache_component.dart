@@ -28,10 +28,11 @@ class _CacheComponentState extends State<CacheComponent> {
             submitText: 'Clean',
             onCancel: () {},
             onSubmit: () async {
+              showMessage(context, 'Cache Clenning....');
               await cleanCache();
-              setState(() {});
-              if (!mounted) return;
-              showMessage(context, 'Cache Cleaned');
+              if (mounted) {
+                setState(() {});
+              }
             },
           ),
         );

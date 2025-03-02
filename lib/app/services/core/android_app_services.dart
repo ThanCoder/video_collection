@@ -36,7 +36,7 @@ void showConfirmStoragePermissionDialog(BuildContext context) {
 //permission
 Future<bool> checkStoragePermission() async {
   if (Platform.isLinux) return true;
-  return await ThanPkg.platform.isStoragePermissionGranted();
+  return await ThanPkg.android.permission.isStoragePermissionGranted();
 }
 
 Future<void> requestStoragePermission() async {

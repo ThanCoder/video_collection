@@ -48,6 +48,10 @@ class ContentFileProvider with ChangeNotifier {
         onCancel: () {},
         onSubmit: () async {
           try {
+            //show mess
+            if (context.mounted) return;
+            showMessage(ctx, 'ဖျက်နေပါတယ်...');
+
             _isLoading = true;
             notifyListeners();
             final res = _list.where((n) => n != name).toList();
@@ -61,8 +65,7 @@ class ContentFileProvider with ChangeNotifier {
 
             _isLoading = false;
             notifyListeners();
-            //show mess
-            showMessage(ctx, 'ဖျက်ပြီးပါပြီ');
+            
           } catch (e) {
             _isLoading = false;
             notifyListeners();

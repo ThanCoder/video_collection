@@ -19,18 +19,18 @@ class VideoServices {
       final dbSrcPath = getDatabaseSourcePath();
       //isolate
       list = await Isolate.run<List<VideoModel>>(() async {
-        List<VideoModel> _list = [];
+        List<VideoModel> list = [];
         final dbFile = File(path);
 
         if (dbFile.existsSync()) {
           List<dynamic> resList = jsonDecode(await dbFile.readAsString());
-          _list = resList.map((map) {
+          list = resList.map((map) {
             final vd = VideoModel.fromMap(map);
             vd.coverPath = '${createDir('$dbSrcPath/${vd.id}')}/cover.png';
             return vd;
           }).toList();
         }
-        return _list;
+        return list;
       });
     } catch (e) {
       debugPrint('getVideoList: ${e.toString()}');

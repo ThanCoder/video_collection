@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/index.dart';
@@ -28,7 +30,8 @@ class _VideoScannerScreenState extends State<VideoScannerScreen> {
 
   Future<void> init() async {
     try {
-      if (!await ThanPkg.platform.isStoragePermissionGranted()) {
+      if (Platform.isAndroid &&
+          !await ThanPkg.android.permission.isStoragePermissionGranted()) {
         await ThanPkg.platform.requestStoragePermission();
         return;
       }

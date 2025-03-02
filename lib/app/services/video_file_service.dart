@@ -53,10 +53,10 @@ class VideoFileService {
         appConfigNotifier.value.isShowAtLeastOneSingleVideoFile;
     //isolate
     return await Isolate.run<List<VideoFileModel>>(() async {
-      List<VideoFileModel> _list = [];
+      List<VideoFileModel> list = [];
       try {
         final dir = Directory(appSourcPath);
-        if (!await dir.exists()) return _list;
+        if (!await dir.exists()) return list;
 
         await for (var file in dir.list()) {
           //မဟုတ်ရင် ကျော်မယ်
@@ -86,16 +86,16 @@ class VideoFileService {
             if (isShowAtLastSingleVideoFile) {
               res = res.where((vf) => File(vf.path).existsSync()).toList();
             }
-            _list.addAll(res);
+            list.addAll(res);
           }
         }
 
         //sort
-        _list.sort((a, b) => a.date.compareTo(b.date));
+        list.sort((a, b) => a.date.compareTo(b.date));
       } catch (e) {
         debugPrint('getAllVideoList: ${e.toString()}');
       }
-      return _list;
+      return list;
     });
   }
 
@@ -107,7 +107,7 @@ class VideoFileService {
         appConfigNotifier.value.isShowAtLeastOneSingleVideoFile;
     //isolate
     return await Isolate.run<List<VideoFileModel>>(() async {
-      List<VideoFileModel> _list = [];
+      List<VideoFileModel> list = [];
       try {
         final dbFile = File(path);
 
@@ -115,7 +115,7 @@ class VideoFileService {
           List<dynamic> resList = jsonDecode(await dbFile.readAsString());
 
           //check video file coverPath
-          _list = resList.map((map) {
+          list = resList.map((map) {
             final video = VideoFileModel.fromMap(map);
             if (video.type == VideoFileInfoTypes.realData) {
               video.path = '$srcPath/${video.id}';
@@ -131,15 +131,15 @@ class VideoFileService {
 
           //check video file ရှိလား
           if (isShowAtLastSingleVideoFile) {
-            _list = _list.where((vf) => File(vf.path).existsSync()).toList();
+            list = list.where((vf) => File(vf.path).existsSync()).toList();
           }
         }
         //sort
-        _list.sort((a, b) => a.date.compareTo(b.date));
+        list.sort((a, b) => a.date.compareTo(b.date));
       } catch (e) {
         debugPrint('getList: ${e.toString()}');
       }
-      return _list;
+      return list;
     });
   }
 

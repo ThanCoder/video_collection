@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/screens/video_player_screen.dart';
 import 'package:video_collection/app/services/index.dart';
+import 'package:video_collection/app/utils/index.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
 class VideoFileBookmarkPage extends StatefulWidget {
@@ -29,6 +31,11 @@ class _VideoFileBookmarkPageState extends State<VideoFileBookmarkPage> {
     });
 
     final res = await VideoFileBookmarkService.instance.getList();
+
+    //gen cover
+    await ThanPkg.platform.genVideoCover(
+        outDirPath: getCachePath(),
+        videoPathList: res.map((bf) => bf.filePath).toList());
 
     if (!mounted) return;
     setState(() {

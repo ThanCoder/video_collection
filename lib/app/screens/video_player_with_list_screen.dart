@@ -173,7 +173,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
       controller: listScrollController,
       itemCount: widget.list.length,
       itemBuilder: (context, index) {
-        final _video = widget.list[index];
+        final videoFile = widget.list[index];
         return GestureDetector(
           onTap: () => _videoItemClicked(index),
           child: MouseRegion(
@@ -191,7 +191,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
                       width: _getListCoverSize(width),
                       height: _getListCoverSize(width),
                       child: MyImageFile(
-                        path: _video.coverPath,
+                        path: videoFile.coverPath,
                         borderRadius: 6,
                       ),
                     ),
@@ -202,19 +202,19 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _video.title,
+                          videoFile.title,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
                           style: TextStyle(
                             fontSize: 13,
                           ),
                         ),
-                        Text('Type: ${_video.type.name.toCaptalize()}'),
-                        Text(getParseFileSize(_video.size.toDouble())),
-                        Text(getParseDate(_video.date)),
+                        Text('Type: ${videoFile.type.name.toCaptalize()}'),
+                        Text(getParseFileSize(videoFile.size.toDouble())),
+                        Text(getParseDate(videoFile.date)),
                         VideoFileBookmarkButton(
-                          videoFile: _video,
-                          coverPath: _video.coverPath,
+                          videoFile: videoFile,
+                          coverPath: videoFile.coverPath,
                           filePath: _getFilePath(),
                         ),
                       ],
@@ -342,7 +342,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
         SliverList.builder(
           itemCount: widget.list.length,
           itemBuilder: (context, index) {
-            final _video = widget.list[index];
+            final videoFile = widget.list[index];
             return GestureDetector(
               onTap: () => _videoItemClicked(index),
               child: MouseRegion(
@@ -360,7 +360,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
                           width: _getListCoverSize(width),
                           height: _getListCoverSize(width),
                           child: MyImageFile(
-                            path: _video.coverPath,
+                            path: videoFile.coverPath,
                             borderRadius: 6,
                           ),
                         ),
@@ -371,19 +371,19 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _video.title,
+                              videoFile.title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 3,
                               style: TextStyle(
                                 fontSize: 13,
                               ),
                             ),
-                            Text('Type: ${_video.type.name.toCaptalize()}'),
-                            Text(getParseFileSize(_video.size.toDouble())),
-                            Text(getParseDate(_video.date)),
+                            Text('Type: ${videoFile.type.name.toCaptalize()}'),
+                            Text(getParseFileSize(videoFile.size.toDouble())),
+                            Text(getParseDate(videoFile.date)),
                             VideoFileBookmarkButton(
-                              videoFile: _video,
-                              coverPath: _video.coverPath,
+                              videoFile: videoFile,
+                              coverPath: videoFile.coverPath,
                               filePath: _getFilePath(),
                             ),
                           ],

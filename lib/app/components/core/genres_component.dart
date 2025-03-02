@@ -42,12 +42,8 @@ class _GenresComponentState extends State<GenresComponent> {
       barrierDismissible: false,
       builder: (context) => GenresFormDialog(
         genresList: [],
-        onAddGenres: (GenresModel genres) {
-          print(genres);
-        },
-        onDeleteGenres: (GenresModel genres) {
-          print(genres);
-        },
+        onAddGenres: (GenresModel genres) {},
+        onDeleteGenres: (GenresModel genres) {},
         existsList: genresList,
         onCancel: () {},
         onSubmit: (genres) {
