@@ -60,9 +60,15 @@ class VideoListItem extends StatelessWidget {
               bottom: 0,
               right: 0,
               child: Container(
-                color: isDarkThemeNotifier.value
-                    ? Colors.black
-                    : const Color.fromARGB(220, 204, 204, 204),
+                decoration: BoxDecoration(
+                  color: isDarkThemeNotifier.value
+                      ? const Color.fromARGB(162, 0, 0, 0)
+                      : const Color.fromARGB(220, 204, 204, 204),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(5),
+                    bottomRight: Radius.circular(5),
+                  ),
+                ),
                 child: Text(
                   video.title,
                   overflow: TextOverflow.ellipsis,

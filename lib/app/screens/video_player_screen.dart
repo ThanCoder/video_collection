@@ -4,6 +4,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:than_pkg/enums/screen_orientation_types.dart';
 import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/core/index.dart';
 import 'package:video_collection/app/services/index.dart';
@@ -105,6 +106,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     aspectRatio: player.state.videoParams.aspect ?? 16 / 9,
                     child: Video(
                       controller: _controller,
+                      onEnterFullscreen: () async {
+                        final height = player.state.height ?? 0;
+                        final width = player.state.width ?? 0;
+                        if (height > width) {
+                          if (Platform.isAndroid) {
+                            await ThanPkg.platform.requestScreenOrientation(
+                              type: ScreenOrientationTypes.Portrait,
+                            );
+                          }
+                        } else {
+                          await defaultEnterNativeFullscreen();
+                        }
+                      },
                     ),
                   ),
                 ),

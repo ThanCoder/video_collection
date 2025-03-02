@@ -35,21 +35,25 @@ class FileScannerService {
           void scan(String path) {
             final dir = Directory(path);
             for (var file in dir.listSync()) {
-              //skip folder
-              if (file.getName().startsWith('.') ||
-                  skipList.contains(file.getName())) {
-                debugPrint('skip: ${file.getName()}');
-                continue;
-              }
+              try {
+                //skip folder
+                if (file.getName().startsWith('.') ||
+                    skipList.contains(file.getName())) {
+                  // debugPrint('skip: ${file.getName()}');
+                  continue;
+                }
 
-              if (file.isDirectory()) {
-                scan(file.path);
-                continue;
+                if (file.isDirectory()) {
+                  scan(file.path);
+                  continue;
+                }
+                //video file ဖြစ်နေလား စစ်မယ်
+                if (!isVideoFile(file.path)) continue;
+                //video file ဖြစ်နေရင်
+                _list.add(file.path);
+              } catch (e) {
+                debugPrint(e.toString());
               }
-              //video file ဖြစ်နေလား စစ်မယ်
-              if (!isVideoFile(file.path)) continue;
-              //video file ဖြစ်နေရင်
-              _list.add(file.path);
             }
           }
 

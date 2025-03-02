@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:than_pkg/enums/screen_orientation_types.dart';
 import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/extensions/index.dart';
@@ -33,17 +34,11 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
   void initState() {
     listScrollController.addListener(_onScroll);
     super.initState();
-    if (Platform.isAndroid) {
-      ThanPkg.platform.toggleFullScreen(isFullScreen: true);
-    }
     init();
   }
 
   @override
   void dispose() {
-    if (Platform.isAndroid) {
-      ThanPkg.platform.toggleFullScreen(isFullScreen: false);
-    }
     listScrollController.removeListener(_onScroll);
     super.dispose();
   }
@@ -88,10 +83,15 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
         await player.open(Media(_getFilePath()));
         //listen player loaded or not
         //delay
-        await Future.delayed(Duration(milliseconds: 1100));
+        await Future.delayed(Duration(milliseconds: 600));
 
         //listen player loaded or not
         if (player.state.duration > Duration.zero) {
+          final seconds = await VideoPlayerConfigService.instance
+              .getConfig(videoPath: widget.list[currentVideoIndex].path);
+          if (seconds > 0) {
+            player.seek(Duration(seconds: seconds));
+          }
           //file ရှိနေတယ်
           if (!mounted) return;
           final screenWidth = MediaQuery.of(context).size.width;
@@ -115,11 +115,23 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
     return widget.list[currentVideoIndex].path;
   }
 
+  void _videoItemClicked(int index) async {
+    if (currentVideoIndex == index) return;
+    await VideoPlayerConfigService.instance.setConfig(
+      videoPath: widget.list[currentVideoIndex].path,
+      seconds: player.state.position.inSeconds,
+    );
+
+    setState(() {
+      currentVideoIndex = index;
+    });
+    init();
+  }
+
   Widget _getVideoWidet() {
     if (widget.list.isEmpty) {
       return Center(child: Text('Video List မရှိပါ'));
     }
-
     return AnimatedSize(
       duration: Duration(milliseconds: 400),
       child: SizedBox(
@@ -129,6 +141,27 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
           aspectRatio: playerRatio,
           child: Video(
             controller: _controller,
+            onEnterFullscreen: () async {
+              final height = player.state.height ?? 0;
+              final width = player.state.width ?? 0;
+              if (height > width) {
+                if (Platform.isAndroid) {
+                  await ThanPkg.platform.requestScreenOrientation(
+                    type: ScreenOrientationTypes.Portrait,
+                  );
+                  ThanPkg.platform.toggleFullScreen(isFullScreen: true);
+                }
+              } else {
+                await defaultEnterNativeFullscreen();
+                if (Platform.isAndroid) {
+                  await ThanPkg.platform.toggleFullScreen(isFullScreen: false);
+                }
+              }
+            },
+            // onExitFullscreen: () async {
+            //   await defaultExitNativeFullscreen();
+            //   ThanPkg.platform.toggleFullScreen(isFullScreen: true);
+            // },
           ),
         ),
       ),
@@ -142,14 +175,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
       itemBuilder: (context, index) {
         final _video = widget.list[index];
         return GestureDetector(
-          onTap: () {
-            if (currentVideoIndex == index) return;
-
-            setState(() {
-              currentVideoIndex = index;
-            });
-            init();
-          },
+          onTap: () => _videoItemClicked(index),
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
             child: Card(
@@ -267,6 +293,14 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
                     aspectRatio: playerRatio,
                     child: Video(
                       controller: _controller,
+                      // onEnterFullscreen: () async {
+                      //   final height = player.state.height ?? 0;
+                      //   final width = player.state.width ?? 0;
+                      //   if (height > width) {
+                      //   } else {
+                      //     await defaultEnterNativeFullscreen();
+                      //   }
+                      // },
                     ),
                   ),
                 ),
@@ -295,7 +329,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
           floating: false,
           collapsedHeight: mobileVideoPlayerMinHeight,
           pinned: true, // Makes the app bar sticky at the top
-          flexibleSpace: _getVideoWidet(),
+          flexibleSpace: SafeArea(child: _getVideoWidet()),
         ),
         //desc
         SliverToBoxAdapter(
@@ -310,14 +344,7 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
           itemBuilder: (context, index) {
             final _video = widget.list[index];
             return GestureDetector(
-              onTap: () {
-                if (currentVideoIndex == index) return;
-
-                setState(() {
-                  currentVideoIndex = index;
-                });
-                init();
-              },
+              onTap: () => _videoItemClicked(index),
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: Card(
@@ -379,6 +406,10 @@ class _videoPlayerWithListScreenState extends State<VideoPlayerWithListScreen> {
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
+        await VideoPlayerConfigService.instance.setConfig(
+          videoPath: widget.list[currentVideoIndex].path,
+          seconds: player.state.position.inSeconds,
+        );
         await player.playOrPause();
         await player.dispose();
       },

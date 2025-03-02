@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_collection/app/components/video_file_bookmark_button.dart';
+import 'package:video_collection/app/components/index.dart';
 import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
 import 'package:video_collection/app/utils/index.dart';
@@ -61,13 +61,12 @@ class VideoFileListItem extends StatelessWidget {
             spacing: 10,
             children: [
               SizedBox(
-                width: 150,
-                height: 150,
-                child: MyImageFile(
-                  path: vf.coverPath,
-                  borderRadius: 5,
-                ),
-              ),
+                  width: 150,
+                  height: 150,
+                  child: MyImageFile(
+                    path: vf.coverPath,
+                    borderRadius: 5,
+                  )),
               Expanded(
                 child: Column(
                   spacing: 5,

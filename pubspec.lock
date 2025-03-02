@@ -633,10 +633,10 @@ packages:
     dependency: "direct main"
     description:
       name: than_pkg
-      sha256: e6becabc57d0813ee6bc07d66f6ca46b62a9ada4d39578fe5ec3c3ef200e7e97
+      sha256: edc95d06711898bbcf7e606ff42e878a74c18085e61a023b0b006e76903be851
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.4"
+    version: "1.6.0"
   typed_data:
     dependency: transitive
     description:

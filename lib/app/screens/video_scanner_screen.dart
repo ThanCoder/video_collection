@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:than_pkg/than_pkg.dart';
 import 'package:video_collection/app/components/index.dart';
-import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
-import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/services/index.dart';
 import 'package:video_collection/app/utils/index.dart';
 import 'package:video_collection/app/widgets/index.dart';
@@ -111,69 +109,18 @@ class _VideoScannerScreenState extends State<VideoScannerScreen> {
         ),
         itemBuilder: (context, index) {
           final video = list[index];
-          return GestureDetector(
-            onTap: () {
+          return VideoScannerListItem(
+            video: video,
+            onClicked: (video) {
               setState(() {
                 list[index].isSelected = !list[index].isSelected;
               });
               _chooseListener();
             },
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    width: double.maxFinite,
-                    height: double.maxFinite,
-                    child: MyImageFile(
-                      path:
-                          '${getCachePath()}/${video.path.getName(withExt: false)}.png',
-                      borderRadius: 5,
-                    ),
-                  ),
-                  //title
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      decoration: BoxDecoration(),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDarkThemeNotifier.value
-                              ? Colors.black
-                              : const Color.fromARGB(220, 204, 204, 204),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(5),
-                            bottomRight: Radius.circular(5),
-                          ),
-                        ),
-                        child: Text(
-                          video.name,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  //is selected
-
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Checkbox(
-                      activeColor: Colors.blue,
-                      value: video.isSelected,
-                      onChanged: (value) {
-                        list[index].isSelected = value!;
-                        _chooseListener();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            onCheckChanged: (isChecked) {
+              list[index].isSelected = isChecked;
+              _chooseListener();
+            },
           );
         },
       ),

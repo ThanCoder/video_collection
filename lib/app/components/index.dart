@@ -11,3 +11,4 @@ export './video_see_all_list_view.dart';
 export './video_content_cover_list_view.dart';
 
 export './search_component.dart';
+export './video_scanner_list_item.dart';
