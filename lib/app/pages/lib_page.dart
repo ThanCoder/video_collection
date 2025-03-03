@@ -62,37 +62,25 @@ class _LibPageState extends State<LibPage> {
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        movieList = allVideoList
-            .where((vd) => idSet.contains(vd.id))
-            .take(takeLimit)
-            .toList();
+        movieList = allVideoList.where((vd) => idSet.contains(vd.id)).toList();
       } else if (type == VideoTypes.music) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        musicList = allVideoList
-            .where((vd) => idSet.contains(vd.id))
-            .take(takeLimit)
-            .toList();
+        musicList = allVideoList.where((vd) => idSet.contains(vd.id)).toList();
       } else if (type == VideoTypes.porns) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        pornsList = allVideoList
-            .where((vd) => idSet.contains(vd.id))
-            .take(takeLimit)
-            .toList();
+        pornsList = allVideoList.where((vd) => idSet.contains(vd.id)).toList();
       } else if (type == VideoTypes.series) {
         final idSet = allVideoList
             .where((vd) => vd.type == type)
             .map((vd) => vd.id)
             .toSet();
-        seriesList = allVideoList
-            .where((vd) => idSet.contains(vd.id))
-            .take(takeLimit)
-            .toList();
+        seriesList = allVideoList.where((vd) => idSet.contains(vd.id)).toList();
       }
     }
     if (!mounted) return;
@@ -124,7 +112,7 @@ class _LibPageState extends State<LibPage> {
         final list = _getListFromType(type);
         return VideoSeeAllListView(
           title: type.name.toCaptalize(),
-          list: list,
+          list: list.take(takeLimit).toList(),
           onClick: (video) {
             context.read<VideoProvider>().setCurrentVideo(video);
             Navigator.push(

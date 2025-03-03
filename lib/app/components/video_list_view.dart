@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:video_collection/app/extensions/string_extension.dart';
 import 'package:video_collection/app/models/index.dart';
-import 'package:video_collection/app/notifiers/app_notifier.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
 class VideoListView extends StatelessWidget {
@@ -61,19 +61,17 @@ class VideoListItem extends StatelessWidget {
               right: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDarkThemeNotifier.value
-                      ? const Color.fromARGB(162, 0, 0, 0)
-                      : const Color.fromARGB(220, 204, 204, 204),
+                  color: const Color.fromARGB(120, 51, 51, 51),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(5),
                     bottomRight: Radius.circular(5),
                   ),
                 ),
                 child: Text(
-                  video.title,
+                  video.title.getName(withExt: false),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12, color: Colors.white),
                 ),
               ),
             ),

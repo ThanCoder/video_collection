@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:video_collection/app/components/index.dart';
+import 'package:video_collection/app/models/index.dart';
+import 'package:video_collection/app/pages/index.dart';
 import 'package:video_collection/app/proviers/index.dart';
-import 'package:video_collection/app/screens/index.dart';
 import 'package:video_collection/app/utils/app_util.dart';
 import 'package:video_collection/app/widgets/index.dart';
 
@@ -23,6 +24,29 @@ class _VideoContentScreenState extends State<VideoContentScreen> {
   Future<void> init() async {
     final video = context.read<VideoProvider>().getCurrentVideo;
     context.read<VideoFileProvider>().initList(videoId: video!.id);
+  }
+
+  void _goPlayerScreen(List<VideoFileModel> videoFileList) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 600) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoPlayerListDesktopPage(
+            list: videoFileList,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoPlayerListMobilePage(
+            list: videoFileList,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -85,17 +109,7 @@ class _VideoContentScreenState extends State<VideoContentScreen> {
                       videoFileList.isEmpty
                           ? SizedBox.shrink()
                           : ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        VideoPlayerWithListScreen(
-                                      list: videoFileList,
-                                    ),
-                                  ),
-                                );
-                              },
+                              onPressed: () => _goPlayerScreen(videoFileList),
                               child: Text('Start Watch'),
                             ),
                     ],

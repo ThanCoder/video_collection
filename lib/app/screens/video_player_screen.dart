@@ -56,7 +56,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     try {
       await player.open(Media(widget.video.path));
       //delay
-      await Future.delayed(Duration(milliseconds: 1100));
+      await Future.delayed(Duration(milliseconds: 600));
 
       //listen player loaded or not
       if (player.state.duration > Duration.zero) {
@@ -114,6 +114,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             await ThanPkg.platform.requestScreenOrientation(
                               type: ScreenOrientationTypes.Portrait,
                             );
+                            ThanPkg.android.app
+                                .toggleKeepScreenOn(isKeep: true);
                           }
                         } else {
                           await defaultEnterNativeFullscreen();

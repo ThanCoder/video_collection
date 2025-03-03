@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:than_pkg/than_pkg.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_collection/app/dialogs/index.dart';
 import 'package:video_collection/app/enums/video_file_info_types.dart';
@@ -138,12 +139,16 @@ class VideoProvider with ChangeNotifier {
       notifyListeners();
       final allVideoList = await VideoServices.instance.getVideoList();
 
+      //gen path list
+      await ThanPkg.platform
+          .genVideoCover(outDirPath: getCachePath(), videoPathList: pathList);
+
       for (var path in pathList) {
         //video ဖန်တီးမယ်
         final videoId = Uuid().v4();
         final newVideo = VideoModel(
           id: videoId,
-          title: path.getName(),
+          title: path.getName(withExt: false),
           genres: '',
           desc: '',
           date: DateTime.now().millisecondsSinceEpoch,

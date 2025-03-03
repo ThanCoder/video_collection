@@ -42,13 +42,40 @@ class VideoFileSeeAllListView extends StatelessWidget {
                   onTap: () => onClick(video),
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
-                    child: SizedBox(
-                      width: 150,
-                      height: 150,
-                      child: MyImageFile(
-                        path: video.coverPath,
-                        borderRadius: 5,
-                      ),
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: MyImageFile(
+                            path: video.coverPath,
+                            borderRadius: 5,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: const Color.fromARGB(158, 58, 58, 58),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(5),
+                                  bottomRight: Radius.circular(5),
+                                )),
+                            child: Text(
+                              video.title,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              maxLines: 3,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
